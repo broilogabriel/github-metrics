@@ -23,6 +23,7 @@ lazy val root = (project in file("."))
       "org.http4s"    %% "http4s-dsl"          % Http4sVersion,
       "io.circe"      %% "circe-generic"       % CirceVersion,
       "org.tpolecat"  %% "doobie-core"         % DoobieVersion,
+      "org.tpolecat"  %% "doobie-hikari"       % DoobieVersion,
       "org.tpolecat"  %% "doobie-postgres"     % DoobieVersion,
       "org.tpolecat"  %% "doobie-specs2"       % DoobieVersion,
       "org.typelevel" %% "log4cats-slf4j"      % Log4CatsVersion,

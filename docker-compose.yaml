@@ -12,7 +12,7 @@ services:
     ports:
       - "${DB_PORT}:5432"
     healthcheck:
-      test: [ "CMD", "pg_isready", "-d", "github-metrics-database", "-U", "${POSTGRES_USER}"]
+      test: [ "CMD", "pg_isready", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,7 +24,7 @@ services:
     env_file:
       - .env
     environment:
-      - FLYWAY_URL=jdbc:postgresql://db:5432/github-metrics-database
+      - FLYWAY_URL=jdbc:postgresql://db:5432/${POSTGRES_DB}
     volumes:
       - ${PWD}/migration:/flyway/sql
     depends_on:

@@ -1,8 +1,8 @@
 package io.github.broilogabriel
 
-import io.github.broilogabriel.projects.model.ProjectId
-
 import scala.util.Try
+
+import io.github.broilogabriel.projects.model.ProjectId
 
 package object projects {
 
