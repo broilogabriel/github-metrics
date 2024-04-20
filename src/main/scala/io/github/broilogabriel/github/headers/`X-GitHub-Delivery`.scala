@@ -11,7 +11,9 @@ import org.typelevel.ci.{CIString, CIStringSyntax}
 
 // X-GitHub-Delivery: bd34c38e-ff12-11ee-9979-bef41ffdc041
 // X-GitHub-Event: push
-final case class `X-GitHub-Delivery`(value: UUID)
+final case class `X-GitHub-Delivery`(value: UUID) {
+  def to[T](f: UUID => T): T = f(value)
+}
 
 object `X-GitHub-Delivery` {
 

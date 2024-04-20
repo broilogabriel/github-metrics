@@ -15,15 +15,11 @@ object Server {
   def run[F[_]: LoggerFactory: Async: Network]: F[Nothing] = {
     for {
       _        <- EmberClientBuilder.default[F].build
-      database <- Database("", "", "")
+      database <- Database("localhost", 54320, "github-metrics", "docker", "docker", "github-metrics")
       repo         = Repository(database)
       service      = Service(repo)
       httpApp      = Routes(service).endpoints
-      finalHttpApp = Logger.httpApp(logHeaders = true, logBody = true)(httpApp)
-      //      httpApp = Router(
-      //        "/" -> (ProjectsRoutes[F](ProjectsService.Impl()).routes <+>
-      //          GitHubRoutes[F](GitHubService.Impl()).routes)
-      //      ).orNotFound
+      finalHttpApp = Logger.httpApp(logHeaders = true, logBody = false)(httpApp)
       _ <- EmberServerBuilder
         .default[F]
         .withHost(ipv4"0.0.0.0")

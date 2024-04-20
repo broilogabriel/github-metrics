@@ -16,20 +16,21 @@ lazy val root = (project in file("."))
   .settings(
     name := "github-metrics",
     libraryDependencies ++= Seq(
-      "org.typelevel" %% "cats-effect"         % CatsEffectsVersion,
-      "org.http4s"    %% "http4s-ember-client" % Http4sVersion,
-      "org.http4s"    %% "http4s-ember-server" % Http4sVersion,
-      "org.http4s"    %% "http4s-circe"        % Http4sVersion,
-      "org.http4s"    %% "http4s-dsl"          % Http4sVersion,
-      "io.circe"      %% "circe-generic"       % CirceVersion,
-      "org.tpolecat"  %% "doobie-core"         % DoobieVersion,
-      "org.tpolecat"  %% "doobie-hikari"       % DoobieVersion,
-      "org.tpolecat"  %% "doobie-postgres"     % DoobieVersion,
-      "org.tpolecat"  %% "doobie-specs2"       % DoobieVersion,
-      "org.typelevel" %% "log4cats-slf4j"      % Log4CatsVersion,
-      "org.slf4j"      % "slf4j-simple"        % Slf4jVersion,
-      "org.scalactic" %% "scalactic"           % ScalatestVersion,
-      "org.scalatest" %% "scalatest"           % ScalatestVersion % Test
+      "org.typelevel" %% "cats-effect"           % CatsEffectsVersion,
+      "org.http4s"    %% "http4s-ember-client"   % Http4sVersion,
+      "org.http4s"    %% "http4s-ember-server"   % Http4sVersion,
+      "org.http4s"    %% "http4s-circe"          % Http4sVersion,
+      "org.http4s"    %% "http4s-dsl"            % Http4sVersion,
+      "io.circe"      %% "circe-generic"         % CirceVersion,
+      "org.tpolecat"  %% "doobie-core"           % DoobieVersion,
+      "org.tpolecat"  %% "doobie-hikari"         % DoobieVersion,
+      "org.tpolecat"  %% "doobie-postgres"       % DoobieVersion,
+      "org.tpolecat"  %% "doobie-postgres-circe" % DoobieVersion,
+      "org.tpolecat"  %% "doobie-specs2"         % DoobieVersion,
+      "org.typelevel" %% "log4cats-slf4j"        % Log4CatsVersion,
+      "org.slf4j"      % "slf4j-simple"          % Slf4jVersion,
+      "org.scalactic" %% "scalactic"             % ScalatestVersion,
+      "org.scalatest" %% "scalatest"             % ScalatestVersion % Test
     ),
     mainClass := Option("io.github.broilogabriel.Main")
   )

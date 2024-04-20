@@ -4,3 +4,9 @@
 .git
 .bsp
 *.pdf
+.env*
+docker-compose.yaml
+.dockerignore
+.scalafmt.conf
+**/test/*
+README.md

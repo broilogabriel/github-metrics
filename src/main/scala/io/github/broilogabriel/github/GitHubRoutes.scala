@@ -9,6 +9,7 @@ import org.http4s.server._
 import org.typelevel.log4cats.{LoggerFactory, SelfAwareStructuredLogger}
 
 import io.github.broilogabriel.github.headers._
+import io.github.broilogabriel.github.model.DeliveryId
 
 final class GitHubRoutes[F[_]: Concurrent: LoggerFactory](service: GitHubService[F]) extends Http4sDsl[F] {
   val logger: SelfAwareStructuredLogger[F]     = LoggerFactory[F].getLogger
@@ -16,13 +17,13 @@ final class GitHubRoutes[F[_]: Concurrent: LoggerFactory](service: GitHubService
   private val webhook: HttpRoutes[F] = HttpRoutes.of[F] { case r @ POST -> Root =>
     // TODO define error handling
     for {
-      deliveryId <- Concurrent[F].fromOption(
+      deliveryIdHeader <- Concurrent[F].fromOption(
         r.headers.get[`X-GitHub-Delivery`],
         new Throwable("Missing header `X-GitHub-Delivery`")
       )
       json     <- r.as[Json]
-      _        <- service.saveNotification(json)
-      response <- Created(deliveryId.value.toString)
+      _        <- service.saveNotification(deliveryIdHeader.to(DeliveryId), json)
+      response <- Created(deliveryIdHeader.value.toString)
     } yield response
   }
 
