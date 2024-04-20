@@ -1,0 +1,6 @@
+**/target/*
+.idea
+.github
+.git
+.bsp
+*.pdf

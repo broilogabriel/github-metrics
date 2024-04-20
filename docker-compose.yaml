@@ -1,0 +1,32 @@
+version: "3.9"
+services:
+  github-metrics-database:
+    image: postgres:16.2-alpine3.19
+    container_name: "github-metrics-database"
+    networks:
+      default:
+        aliases:
+          - db
+    expose:
+      - 5432
+    ports:
+      - "${DB_PORT}:5432"
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-d", "github-metrics-database", "-U", "${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    env_file:
+      - .env
+  flyway:
+    image: flyway/flyway:10-alpine
+    command: -locations=filesystem:/flyway/sql -connectRetries=60 migrate
+    env_file:
+      - .env
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://db:5432/github-metrics-database
+    volumes:
+      - ${PWD}/migration:/flyway/sql
+    depends_on:
+      github-metrics-database:
+        condition: service_healthy
