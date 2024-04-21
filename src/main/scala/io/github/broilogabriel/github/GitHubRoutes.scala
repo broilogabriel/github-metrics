@@ -26,9 +26,15 @@ final class GitHubRoutes[F[_]: Concurrent: LoggerFactory](service: GitHubService
       response <- Created(deliveryIdHeader.value.toString)
     } yield response
   }
+  private val syncPR: HttpRoutes[F] = HttpRoutes.of[F] { case GET -> Root =>
+    for {
+      response <- service.synchronizePullRequests("broilogabriel", "github-metrics")
+      r        <- Ok(response.map(_.id).mkString(","))
+    } yield r
+  }
 
   val routes: HttpRoutes[F] = Router(
-    ("/github", webhook)
+    ("/github", webhook <+> syncPR)
   )
 
 }
