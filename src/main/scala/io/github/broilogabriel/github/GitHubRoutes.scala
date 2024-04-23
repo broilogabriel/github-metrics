@@ -3,7 +3,9 @@ package io.github.broilogabriel.github
 import cats.effect._
 import cats.syntax.all._
 import io.circe.Json
+import io.circe.generic.auto._
 import org.http4s._
+import org.http4s.circe.CirceEntityCodec.circeEntityEncoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server._
 import org.typelevel.log4cats.{LoggerFactory, SelfAwareStructuredLogger}
@@ -15,7 +17,6 @@ final class GitHubRoutes[F[_]: Concurrent: LoggerFactory](service: GitHubService
   val logger: SelfAwareStructuredLogger[F]     = LoggerFactory[F].getLogger
   implicit val decoder: EntityDecoder[F, Json] = circe.jsonOf[F, Json]
   private val webhook: HttpRoutes[F] = HttpRoutes.of[F] { case r @ POST -> Root =>
-    // TODO define error handling
     for {
       deliveryIdHeader <- Concurrent[F].fromOption(
         r.headers.get[`X-GitHub-Delivery`],
@@ -28,8 +29,8 @@ final class GitHubRoutes[F[_]: Concurrent: LoggerFactory](service: GitHubService
   }
   private val syncPR: HttpRoutes[F] = HttpRoutes.of[F] { case GET -> Root =>
     for {
-      response <- service.synchronizePullRequests("broilogabriel", "github-metrics")
-      r        <- Ok(response.map(_.id).mkString(","))
+      response <- service.synchronizePullRequests
+      r        <- Ok(response)
     } yield r
   }
 

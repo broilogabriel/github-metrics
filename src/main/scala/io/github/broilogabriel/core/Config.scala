@@ -1,7 +1,5 @@
 package io.github.broilogabriel.core
 
-import doobie.hikari
-
 import io.github.broilogabriel.core.Config.GitHub
 
 final case class Config(
@@ -10,5 +8,5 @@ final case class Config(
 )
 
 object Config {
-  final case class GitHub(token: String)
+  final case class GitHub(token: String, owner: String, repo: String, cron: String)
 }

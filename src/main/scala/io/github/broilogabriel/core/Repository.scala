@@ -6,7 +6,7 @@ import org.typelevel.log4cats.LoggerFactory
 
 import io.github.broilogabriel.github.GitHubRepository
 
-private[core] class Repository[F[_]: LoggerFactory: MonadCancelThrow](xa: HikariTransactor[F]) {
+final class Repository[F[_]: LoggerFactory: MonadCancelThrow] private[core] (xa: HikariTransactor[F]) {
   val gitHubRepository: GitHubRepository[F] = GitHubRepository.Impl(xa)
 }
 

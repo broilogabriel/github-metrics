@@ -3,7 +3,7 @@ package io.github.broilogabriel.github
 import cats.effect._
 import cats.implicits._
 import github4s.GithubClient
-import github4s.domain.PullRequest
+import github4s.domain.{PRFilterAll, PullRequest}
 import io.circe.Json
 import org.http4s.ember.client.EmberClientBuilder
 import org.typelevel.log4cats.{LoggerFactory, SelfAwareStructuredLogger}
@@ -13,7 +13,7 @@ import io.github.broilogabriel.github.model.DeliveryId
 
 sealed trait GitHubService[F[_]] {
   def saveNotification(deliveryId: DeliveryId, data: Json): F[Unit]
-  def synchronizePullRequests(owner: String, repo: String): F[List[PullRequest]]
+  def synchronizePullRequests: F[List[PullRequest]]
 }
 
 object GitHubService {
@@ -30,15 +30,18 @@ object GitHubService {
       _ <- repository.saveNotification(deliveryId, data)
     } yield ()
 
-    override def synchronizePullRequests(owner: String, repo: String): F[List[PullRequest]] = {
-      val x: F[List[PullRequest]] = gitHubClient
-        .use(_.pullRequests.listPullRequests(owner, repo))
+    override def synchronizePullRequests: F[List[PullRequest]] = {
+      val fetchPRs: F[List[PullRequest]] = gitHubClient
+        .use(_.pullRequests.listPullRequests(config.owner, config.repo, List(PRFilterAll)))
         .map(_.result)
         .flatMap {
           case Left(err)    => err.raiseError[F, List[PullRequest]]
           case Right(value) => value.pure[F]
         }
-      x
+      for {
+        prs <- fetchPRs
+        _   <- logger.info(s"Fetched ${prs.size} prs for ${config.owner}/${config.repo}")
+      } yield prs
     }
   }
 

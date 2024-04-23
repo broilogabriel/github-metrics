@@ -12,7 +12,7 @@ import org.typelevel.log4cats.{LoggerFactory, SelfAwareStructuredLogger}
 import io.github.broilogabriel.github.GitHubRoutes
 import io.github.broilogabriel.projects.ProjectsRoutes
 
-private[core] class Routes[F[_]: LoggerFactory: ApplicativeThrow: Concurrent](service: Service[F]) {
+final class Routes[F[_]: LoggerFactory: ApplicativeThrow: Concurrent] private[core] (service: Service[F]) {
   private val logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
   private val gitHubRoutes: GitHubRoutes[F]        = GitHubRoutes[F](service.gitHubService)
   private val projectsRoutes: ProjectsRoutes[F]    = ProjectsRoutes[F](service.projectsService)

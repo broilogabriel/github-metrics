@@ -6,7 +6,7 @@ import org.typelevel.log4cats.LoggerFactory
 import io.github.broilogabriel.github.GitHubService
 import io.github.broilogabriel.projects.ProjectsService
 
-private[core] class Service[F[_]: LoggerFactory: Async](config: Config, repository: Repository[F]) {
+final class Service[F[_]: LoggerFactory: Async] private[core] (config: Config, repository: Repository[F]) {
 
   val gitHubService: GitHubService[F]     = GitHubService.Impl(config.github, repository.gitHubRepository)
   val projectsService: ProjectsService[F] = ProjectsService.Impl()
