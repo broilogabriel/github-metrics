@@ -9,11 +9,12 @@ import org.http4s.ember.client.EmberClientBuilder
 import org.typelevel.log4cats.{LoggerFactory, SelfAwareStructuredLogger}
 
 import io.github.broilogabriel.core.Config.GitHub
-import io.github.broilogabriel.github.model.DeliveryId
+import io.github.broilogabriel.github.model.{DeliveryId, Repository}
 
 sealed trait GitHubService[F[_]] {
   def saveNotification(deliveryId: DeliveryId, data: Json): F[Unit]
   def synchronizePullRequests: F[List[PullRequest]]
+  def saveRepository(repo: Repository): F[Unit]
 }
 
 object GitHubService {
@@ -30,18 +31,32 @@ object GitHubService {
       _ <- repository.saveNotification(deliveryId, data)
     } yield ()
 
+    override def saveRepository(repo: Repository): F[Unit] = for {
+      _ <- repository.createUser(repo.owner)
+      _ <- repository.createRepository(repo)
+    } yield ()
+
     override def synchronizePullRequests: F[List[PullRequest]] = {
-      val fetchPRs: F[List[PullRequest]] = gitHubClient
-        .use(_.pullRequests.listPullRequests(config.owner, config.repo, List(PRFilterAll)))
-        .map(_.result)
-        .flatMap {
-          case Left(err)    => err.raiseError[F, List[PullRequest]]
-          case Right(value) => value.pure[F]
+      repository
+        .findAllRepositories()
+        .evalMap { repo =>
+          val fetchPRs: F[List[PullRequest]] = gitHubClient
+            .use(
+              _.pullRequests.listPullRequests(repo.owner.login.value, repo.name.value, List(PRFilterAll))
+            )
+            .map(_.result)
+            .flatMap {
+              case Left(err)    => err.raiseError[F, List[PullRequest]]
+              case Right(value) => value.pure[F]
+            }
+          for {
+            prs <- fetchPRs
+            _   <- logger.info(s"Fetched ${prs.size} prs for ${repo.owner.login.value}/${repo.name.value}")
+          } yield prs
         }
-      for {
-        prs <- fetchPRs
-        _   <- logger.info(s"Fetched ${prs.size} prs for ${config.owner}/${config.repo}")
-      } yield prs
+        .map(_.head)
+        .compile
+        .toList
     }
   }
 

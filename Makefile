@@ -11,12 +11,12 @@ compose-rm:
 	$(COMPOSE) rm
 
 compose-start:
-	$(COMPOSE) up -d
+	$(COMPOSE) up
 
 sbt-start:
 	sbt -jvm-debug 5005 ~reStart
 
 compose-sbt:
-	make compose-stop && make compose-start
+	make compose-stop && $(COMPOSE) up -d
 	sbt -jvm-debug 5005 ~reStart
 	make compose-stop
