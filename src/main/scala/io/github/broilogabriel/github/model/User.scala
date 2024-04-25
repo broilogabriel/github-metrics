@@ -1,6 +1,6 @@
 package io.github.broilogabriel.github.model
 
-import io.circe.{Codec, Decoder, Encoder}
+import io.circe.Codec
 import io.circe.generic.semiauto
 
 import io.github.broilogabriel.core.ValueClassCodec
@@ -13,9 +13,11 @@ object User extends ValueClassCodec {
   final case class Login(value: String) extends AnyVal
   final case class Type(value: String)  extends AnyVal
 
-//  implicit val repoIdCodec: Codec[Id] =
-//    Codec.from(Decoder.decodeLong.map(Id.apply), Encoder.encodeLong.contramap(_.value))
-//  implicit val repoNameCodec: Codec[Name] =
-//    Codec.from(Decoder.decodeString.map(Name.apply), Encoder.encodeString.contramap(_.value))
+  def apply(user: github4s.domain.User): User = new User(
+    Id(user.id),
+    Login(user.login),
+    Type(user.`type`)
+  )
+
   implicit val userCodec: Codec[User] = semiauto.deriveCodec[User]
 }

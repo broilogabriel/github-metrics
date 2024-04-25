@@ -1,16 +1,3 @@
-// Request URL: https://sure-champion-gopher.ngrok-free.app/github
-// Request method: POST
-// Accept: */*
-// Content-Type: application/json
-// User-Agent: GitHub-Hookshot/612f7cb
-// X-GitHub-Delivery: 00becd70-ff13-11ee-869e-8c7bcb26c63d
-// X-GitHub-Event: workflow_run
-// X-GitHub-Hook-ID: 472322823
-// X-GitHub-Hook-Installation-Target-ID: 785430811
-// X-GitHub-Hook-Installation-Target-Type: repository
-// X-Hub-Signature: sha1=93a0823bc652fa68488ff0e7d92f6f8d7e3b2f46
-// X-Hub-Signature-256: sha256=2c78cebdc7de32dd0f16e4dd599e753888b5d82ae792eb7b429dbd2d3a027609
-
 {
   "action": "requested",
   "workflow_run": {

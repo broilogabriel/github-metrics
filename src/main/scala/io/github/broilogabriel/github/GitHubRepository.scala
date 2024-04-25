@@ -34,16 +34,19 @@ object GitHubRepository {
 
     def createUser(user: User): F[Unit] =
       sql"""INSERT INTO users (id, login, type) VALUES ($user) ON CONFLICT DO NOTHING""".update.run.transact(xa).void
+
     def createRepository(repository: Repository): F[Unit] =
-      sql"""INSERT INTO repositories (id, owner_id, name) VALUES ($repository) ON CONFLICT DO NOTHING""".update.run
+      sql"""INSERT INTO repositories (id, owner_id, name, synchronized_at) VALUES ($repository) ON CONFLICT DO NOTHING""".update.run
         .transact(xa)
         .void
+
     def findAllRepositories(): fs2.Stream[F, Repository] = sql"""
             SELECT r.id
                  , r.name
                  , r.owner_id
                  , u.login
                  , u.type
+                 , r.synchronized_at
               FROM repositories r
               JOIN users        u ON u.id = r.owner_id
                  """.query[Repository].stream.transact(xa)
