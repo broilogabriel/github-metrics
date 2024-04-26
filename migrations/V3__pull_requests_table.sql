@@ -2,7 +2,7 @@ CREATE TABLE pull_requests (
     id               bigint      PRIMARY KEY,
     repository_id    bigint      NOT NULL,
     user_id          bigint      NOT NULL,
-    merge_commit_sha varchar(40) NOT NULL,
+    merge_commit_sha varchar(40),
     state            varchar     NOT NULL,
     created_at       timestamp   NOT NULL,
     updated_at       timestamp,
