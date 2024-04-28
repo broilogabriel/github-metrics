@@ -1,0 +1,1 @@
+ALTER TABLE pull_requests ADD COLUMN webhook_event_at timestamp;

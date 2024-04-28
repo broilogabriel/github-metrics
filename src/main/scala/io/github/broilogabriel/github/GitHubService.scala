@@ -2,24 +2,19 @@ package io.github.broilogabriel.github
 
 import java.time.Instant
 
-import scala.annotation.tailrec
-import scala.collection.immutable.List
-import scala.io.Source
-
 import cats.effect._
 import cats.implicits._
 import github4s.GithubClient
-import github4s.domain.{Pagination, PRFilterAll, PRFilterOrderAsc, PRFilterOrderDesc, PRFilterSortUpdated}
-import io.circe.Json
+import github4s.domain.{Pagination, PRFilterAll, PRFilterOrderDesc, PRFilterSortUpdated}
 import org.http4s.ember.client.EmberClientBuilder
 import org.typelevel.log4cats.{LoggerFactory, SelfAwareStructuredLogger}
 
 import io.github.broilogabriel.core.Config.GitHub
-import io.github.broilogabriel.github.model.{DeliveryId, PullRequest, Repository, User}
+import io.github.broilogabriel.github.model._
 import io.github.broilogabriel.github.model.PullRequest.SynchronizedAt
 
 sealed trait GitHubService[F[_]] {
-  def saveNotification(deliveryId: DeliveryId, data: Json): F[Unit]
+  def updatePullRequestWebhook(deliveryId: DeliveryId, data: PullRequestEvent): F[Int]
   def synchronizePullRequests: F[List[(Repository, Int)]]
   def saveRepository(repo: Repository): F[Unit]
 }
@@ -35,10 +30,14 @@ object GitHubService {
 
     // TODO add rate limiter to client
 
-    override def saveNotification(deliveryId: DeliveryId, data: Json): F[Unit] = for {
-      _ <- logger.info(s"Got notification: $deliveryId")
-      _ <- repository.createNotification(deliveryId, data)
-    } yield ()
+    override def updatePullRequestWebhook(deliveryId: DeliveryId, data: PullRequestEvent): F[Int] = for {
+      _    <- logger.debug(s"Got notification: $deliveryId - ${data.action}")
+      _    <- repository.createNotification(deliveryId, data)
+      _    <- repository.createUser(data.sender)
+      _    <- repository.upsertRepository(data.repository)
+      rows <- repository.upsertPullRequestWebhook(data.pullRequest)
+      _    <- logger.debug(s"Updated: $rows")
+    } yield rows
 
     override def saveRepository(repo: Repository): F[Unit] = for {
       _ <- repository.createUser(repo.owner)
@@ -49,11 +48,11 @@ object GitHubService {
       login: User.Login,
       name: Repository.Name,
       synchronizedAt: Option[Repository.SynchronizedAt]
-    ): F[List[PullRequest]] = {
+    ): F[List[PullRequest.Refresh]] = {
       def inner(
         pagination: Option[Pagination],
-        pullRequests: List[PullRequest]
-      ): F[List[PullRequest]] = {
+        pullRequests: List[PullRequest.Refresh]
+      ): F[List[PullRequest.Refresh]] = {
         pagination match {
           case None => pullRequests.pure[F]
           case Some(Pagination(page, per_page)) =>
@@ -70,8 +69,8 @@ object GitHubService {
                     )
                 )
               prs <- response.result match {
-                case Left(err)    => err.raiseError[F, List[PullRequest]]
-                case Right(value) => value.map(PullRequest(_, SynchronizedAt(Instant.now()))).pure[F]
+                case Left(err)    => err.raiseError[F, List[PullRequest.Refresh]]
+                case Right(value) => value.map(PullRequest.Refresh(_, SynchronizedAt(Instant.now()))).pure[F]
               }
               _ <- logger.debug(s"GOT HEADERS: ${response.headers.filter(p =>
                   Set(
@@ -104,7 +103,7 @@ object GitHubService {
             prs      <- fetchPullRequests(owner.login, name, synchronizedAt)
             newUsers <- repository.createUsers(prs.map(_.user).distinct)
             _        <- logger.debug(s"Created $newUsers new users")
-            saved    <- repository.createPullRequests(prs)
+            saved    <- repository.upsertPullRequestsRefresh(prs)
             _        <- logger.debug(s"Fetched ${prs.size} prs for ${owner.login.value}/${name.value}; saved $saved")
             updatedRepo = repo.copy(synchronizedAt = Option(Repository.SynchronizedAt(now)))
             _ <- repository.upsertRepository(updatedRepo)
