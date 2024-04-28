@@ -94,7 +94,7 @@ object GitHubService {
       inner(Option(Pagination(1, 100)), List.empty)
     }
 
-    // TODO add semaphore here for avoiding concurrent runs
+    // TODO add semaphore for avoiding concurrent runs
     override def synchronizePullRequests: F[Unit] =
       repository
         .findAllRepositories()

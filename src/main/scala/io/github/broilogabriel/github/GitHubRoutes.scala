@@ -47,7 +47,7 @@ final class GitHubRoutes[F[_]: Concurrent: LoggerFactory](service: GitHubService
   }
   private val syncPR: HttpRoutes[F] = HttpRoutes.of[F] { case GET -> Root =>
     for {
-      _ <- service.synchronizePullRequests
+      _ <- service.synchronizePullRequests // TODO should run in a separate fiber/thread, or sent to a queue
       r <- Accepted()
     } yield r
   }
