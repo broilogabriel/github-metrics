@@ -1,11 +1,9 @@
 package io.github.broilogabriel.github
 
-import cats.data.EitherT
 import cats.effect._
 import cats.effect.syntax.all._
 import cats.implicits.catsSyntaxMonadError
 import cats.syntax.all._
-import io.circe.Decoder.Result
 import io.circe.Json
 import io.circe.generic.auto._
 import org.http4s._
@@ -49,8 +47,8 @@ final class GitHubRoutes[F[_]: Concurrent: LoggerFactory](service: GitHubService
   }
   private val syncPR: HttpRoutes[F] = HttpRoutes.of[F] { case GET -> Root =>
     for {
-      response <- service.synchronizePullRequests
-      r        <- Ok(response)
+      _ <- service.synchronizePullRequests
+      r <- Accepted()
     } yield r
   }
   private val monitor: HttpRoutes[F] = HttpRoutes.of[F] { case json @ POST -> Root / "monitor" =>

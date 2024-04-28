@@ -15,7 +15,7 @@ import io.github.broilogabriel.github.model.PullRequest.SynchronizedAt
 
 sealed trait GitHubService[F[_]] {
   def updatePullRequestWebhook(deliveryId: DeliveryId, data: PullRequestEvent): F[Int]
-  def synchronizePullRequests: F[List[(Repository, Int)]]
+  def synchronizePullRequests: F[Unit]
   def saveRepository(repo: Repository): F[Unit]
 }
 
@@ -94,7 +94,8 @@ object GitHubService {
       inner(Option(Pagination(1, 100)), List.empty)
     }
 
-    override def synchronizePullRequests: F[List[(Repository, Int)]] =
+    // TODO add semaphore here for avoiding concurrent runs
+    override def synchronizePullRequests: F[Unit] =
       repository
         .findAllRepositories()
         .evalMap { case repo @ Repository(_, owner, name, synchronizedAt) =>
@@ -111,6 +112,7 @@ object GitHubService {
         }
         .compile
         .toList
+        .void
   }
 
   object Impl {
