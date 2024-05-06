@@ -86,3 +86,12 @@ curl --request GET \
 curl --request GET \
   --url http://localhost:8080/api/projects/29986727/metrics
 ```
+
+## Current Issues (Potential Future Improvements)
+
+ - No authentication/authorization in the project
+ - No throttling for ensuring rate limits are not exceeded
+ - It is possible to start multiple synchronizations at the same time, a semaphore like approach is needed to ensure no
+concurrent syncs are happening
+ - No integration/e2e tests, also limited code coverage from unit tests
+ - Not packaging the application, `sbt-native-packager` could be used for creating a docker image for example
