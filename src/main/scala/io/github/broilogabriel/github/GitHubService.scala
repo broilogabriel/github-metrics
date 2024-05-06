@@ -21,6 +21,18 @@ sealed trait GitHubService[F[_]] {
 
 object GitHubService {
 
+  private[github] val FIRST_PAGE = Pagination(1, 100)
+
+  private[github] def getNextPage(
+    currentPage: Pagination,
+    synchronizedAt: Option[Repository.SynchronizedAt],
+    pullRequests: Seq[_ <: PullRequest]
+  ): Option[Pagination] = for {
+    oldestUpdate <- pullRequests.flatMap(_.updatedAt.map(_.value)).minOption
+    lastSync     <- synchronizedAt.map(_.value).orElse(Option(Instant.MIN))
+    _nextPage    <- Option.when(lastSync.isBefore(oldestUpdate))(currentPage.copy(page = currentPage.page + 1))
+  } yield _nextPage
+
   private final class Impl[F[_]: LoggerFactory: Async](config: GitHub, repository: GitHubRepository[F])
       extends GitHubService[F] {
     private val logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
@@ -45,53 +57,53 @@ object GitHubService {
     } yield ()
 
     private def fetchPullRequests(
-      login: User.Login,
-      name: Repository.Name,
+      user: User,
+      repository: Repository,
+      pagination: Option[Pagination]
+    ): F[List[PullRequest.Refresh]] = for {
+      response <- gitHubClient
+        .use(
+          _.pullRequests
+            .listPullRequests(
+              user.login.value,
+              repository.name.value,
+              List(PRFilterAll, PRFilterSortUpdated, PRFilterOrderDesc),
+              pagination
+            )
+        )
+      _ <- logger.debug(s"Rate limit headers: ${response.headers.filter(p =>
+          Set(
+            "retry-after",
+            "x-ratelimit-remaining",
+            "x-ratelimit-reset",
+            "x-ratelimit-resource"
+          ).contains(p._1.toLowerCase)
+        )}")
+      prs <- response.result match {
+        case Left(err)    => err.raiseError[F, List[PullRequest.Refresh]]
+        case Right(value) => value.map(PullRequest.Refresh(_, SynchronizedAt.now)).pure[F]
+      }
+    } yield prs
+
+    private def fetchAllPullRequests(
+      user: User,
+      repo: Repository,
       synchronizedAt: Option[Repository.SynchronizedAt]
     ): F[List[PullRequest.Refresh]] = {
       def inner(
         pagination: Option[Pagination],
         pullRequests: List[PullRequest.Refresh]
-      ): F[List[PullRequest.Refresh]] = {
-        pagination match {
-          case None => pullRequests.pure[F]
-          case Some(Pagination(page, per_page)) =>
-            for {
-              _ <- logger.debug(s"WILL REQUEST WITH: $pagination")
-              response <- gitHubClient
-                .use(
-                  _.pullRequests
-                    .listPullRequests(
-                      login.value,
-                      name.value,
-                      List(PRFilterAll, PRFilterSortUpdated, PRFilterOrderDesc),
-                      pagination
-                    )
-                )
-              prs <- response.result match {
-                case Left(err)    => err.raiseError[F, List[PullRequest.Refresh]]
-                case Right(value) => value.map(PullRequest.Refresh(_, SynchronizedAt(Instant.now()))).pure[F]
-              }
-              _ <- logger.debug(s"GOT HEADERS: ${response.headers.filter(p =>
-                  Set(
-                    "retry-after",
-                    "x-ratelimit-remaining",
-                    "x-ratelimit-reset",
-                    "x-ratelimit-resource"
-                  ).contains(p._1.toLowerCase)
-                )}")
-              _ <- logger.debug(s"GOT THIS: -> ${prs.headOption}")
-              nextPage =
-                if (prs.isEmpty || synchronizedAt.exists(_.value.isAfter(prs.flatMap(_.updatedAt.map(_.value)).min))) {
-                  Option.empty[Pagination]
-                } else {
-                  Option(Pagination(page + 1, per_page))
-                }
-              result <- inner(nextPage, pullRequests ++ prs)
-            } yield result
-        }
+      ): F[List[PullRequest.Refresh]] = pagination match {
+        case Some(currentPage) =>
+          for {
+            prs <- fetchPullRequests(user, repo, pagination)
+            _   <- logger.debug(s"Page ${pagination.map(_.page).getOrElse(-1)} returned ${prs.size} pull requests")
+            nextPage = getNextPage(currentPage, synchronizedAt, prs)
+            result <- inner(nextPage, pullRequests ++ prs)
+          } yield result
+        case None => pullRequests.pure[F]
       }
-      inner(Option(Pagination(1, 100)), List.empty)
+      inner(Option(FIRST_PAGE), List.empty)
     }
 
     // TODO add semaphore for avoiding concurrent runs
@@ -101,7 +113,7 @@ object GitHubService {
         .evalMap { case repo @ Repository(_, owner, name, synchronizedAt) =>
           for {
             now      <- Instant.now().pure[F]
-            prs      <- fetchPullRequests(owner.login, name, synchronizedAt)
+            prs      <- fetchAllPullRequests(owner, repo, synchronizedAt)
             newUsers <- repository.createUsers(prs.map(_.user).distinct)
             _        <- logger.debug(s"Created $newUsers new users")
             saved    <- repository.upsertPullRequestsRefresh(prs)
@@ -116,6 +128,7 @@ object GitHubService {
   }
 
   object Impl {
+
     def apply[F[_]: LoggerFactory: Async](config: GitHub, repository: GitHubRepository[F]): GitHubService[F] =
       new Impl(config, repository)
   }

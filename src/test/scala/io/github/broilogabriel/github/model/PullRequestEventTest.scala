@@ -34,6 +34,18 @@ class PullRequestEventTest extends AsyncWordSpec with AsyncIOSpec with Matchers 
       }
     }
   }
+  "other event decoding" should {
+    val resourcePath = "webhook/workflow_run_requested.json"
+    "return a failure to decode as pull request" in {
+      resourceHandler(resourcePath)
+        .map(parser.decode[PullRequestEvent])
+        .allocated
+        .asserting {
+          case (Right(_), _) => fail(s"Invalid branch, it should not decode")
+          case (Left(_), _)  => succeed
+        }
+    }
+  }
 
   def resourceHandler(filename: String): Resource[IO, String] =
     Resource

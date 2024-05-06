@@ -3,7 +3,6 @@ package io.github.broilogabriel.github.model
 import java.time.Instant
 
 import io.circe.{Codec, Decoder, HCursor}
-import io.circe.Decoder.Result
 import io.circe.generic.semiauto
 
 import io.github.broilogabriel.core.ValueClassCodec
@@ -14,9 +13,7 @@ import io.github.broilogabriel.github.model.PullRequest.{
   MergeCommitSha,
   MergedAt,
   State,
-  SynchronizedAt,
-  UpdatedAt,
-  WebHookEventAt
+  UpdatedAt
 }
 sealed trait PullRequest {
   val id: Id
@@ -39,26 +36,13 @@ object PullRequest extends ValueClassCodec {
   final case class ClosedAt(value: Instant)       extends AnyVal
   final case class MergedAt(value: Instant)       extends AnyVal
   final case class SynchronizedAt(value: Instant) extends AnyVal
+  object SynchronizedAt {
+    def now: SynchronizedAt = SynchronizedAt(Instant.now())
+  }
   final case class WebHookEventAt(value: Instant) extends AnyVal
   object WebHookEventAt {
     def now: WebHookEventAt = WebHookEventAt(Instant.now())
   }
-
-  final case class Complete(
-    id: Id,
-    repository: Repository,
-    user: User,
-    mergeCommitSha: Option[MergeCommitSha],
-    state: State,
-    createdAt: CreatedAt,
-    updatedAt: Option[UpdatedAt],
-    closedAt: Option[ClosedAt],
-    mergedAt: Option[MergedAt],
-    synchronizedAt: Option[SynchronizedAt],
-    webHookEventAt: Option[WebHookEventAt]
-  ) extends PullRequest
-
-  object Complete extends ValueClassCodec
 
   final case class WebHook(
     id: Id,

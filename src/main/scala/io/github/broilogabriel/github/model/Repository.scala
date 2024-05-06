@@ -14,7 +14,9 @@ object Repository extends ValueClassCodec {
   final case class Id(value: Long)                extends AnyVal
   final case class Name(value: String)            extends AnyVal
   final case class SynchronizedAt(value: Instant) extends AnyVal
-
+  object SynchronizedAt {
+    def now: SynchronizedAt = SynchronizedAt(Instant.now())
+  }
   def apply(repo: github4s.domain.Repository, synchronizedAt: Option[SynchronizedAt]) = new Repository(
     Id(repo.id),
     User(repo.owner),
