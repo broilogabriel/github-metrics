@@ -1,21 +1,20 @@
 package io.github.broilogabriel.github.model
 
-import scala.concurrent.ExecutionContext
-import scala.io.{BufferedSource, Source}
+import scala.io.Source
 
-import cats.effect._
 import cats.effect.IO
 import cats.effect.kernel.Resource
-import cats.effect.testing.scalatest.{AsyncIOSpec, CatsResource}
+import cats.effect.testing.scalatest.AsyncIOSpec
 import io.circe._
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.{AnyWordSpec, AsyncWordSpec}
+import org.scalatest.wordspec.AsyncWordSpec
 
-import io.github.broilogabriel.github.model.PullRequestEvent.{Action, Number}
+import io.github.broilogabriel.github.model.PullRequestEvent.{Action, ExternalDecoder, Number}
 
 class PullRequestEventTest extends AsyncWordSpec with AsyncIOSpec with Matchers {
 
   "pull request event decoding" when {
+    implicit val decoder: Decoder[PullRequestEvent] = ExternalDecoder
     "event action is opened" should {
       val resourcePath = "webhook/pull_request_opened.json"
       "return the correct result" in {
@@ -35,7 +34,8 @@ class PullRequestEventTest extends AsyncWordSpec with AsyncIOSpec with Matchers 
     }
   }
   "other event decoding" should {
-    val resourcePath = "webhook/workflow_run_requested.json"
+    implicit val decoder: Decoder[PullRequestEvent] = ExternalDecoder
+    val resourcePath                                = "webhook/workflow_run_requested.json"
     "return a failure to decode as pull request" in {
       resourceHandler(resourcePath)
         .map(parser.decode[PullRequestEvent])

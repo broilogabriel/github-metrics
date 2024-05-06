@@ -1,6 +1,5 @@
 package io.github.broilogabriel
 
-import cats.ApplicativeError
 import cats.effect._
 import cats.effect.implicits._
 import cats.effect.syntax._
@@ -17,6 +16,9 @@ import pureconfig.generic.auto._
 
 import io.github.broilogabriel.core._
 
+/**
+ * Responsible for bootstrapping the application
+ */
 object Server {
 
   def run[F[_]: LoggerFactory: Async: Network]: F[Nothing] = {
@@ -24,7 +26,7 @@ object Server {
 
     for {
       _        <- EmberClientBuilder.default[F].build
-      database <- Database("localhost", 54320, "github-metrics", "docker", "docker", "github-metrics")
+      database <- Database(config.db)
       repo         = Repository(database)
       service      = Service(config, repo)
       httpApp      = Routes(service).endpoints

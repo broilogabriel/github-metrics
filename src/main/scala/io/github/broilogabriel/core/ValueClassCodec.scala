@@ -2,6 +2,9 @@ package io.github.broilogabriel.core
 
 import io.circe.{Decoder, Encoder}
 
+/**
+ * Generic codec for encoding and decoding value classes to and from json
+ */
 trait ValueClassCodec {
   import shapeless._
   implicit def encoderValueClass[T <: AnyVal, V](implicit

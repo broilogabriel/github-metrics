@@ -8,6 +8,11 @@ import io.github.broilogabriel.contributors.ContributorsRepository
 import io.github.broilogabriel.github.GitHubRepository
 import io.github.broilogabriel.projects.ProjectsRepository
 
+/**
+ * Responsible for creating the database layer of the application
+ * @param xa Database transactor
+ * @tparam F
+ */
 final class Repository[F[_]: LoggerFactory: MonadCancelThrow] private[core] (xa: HikariTransactor[F]) {
   val gitHubRepository: GitHubRepository[F]             = GitHubRepository.Impl(xa)
   val projectsRepository: ProjectsRepository[F]         = ProjectsRepository.Impl(xa)

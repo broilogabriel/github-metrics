@@ -5,6 +5,12 @@ import cron4s.Cron
 import eu.timepit.fs2cron.cron4s.Cron4sScheduler
 import org.typelevel.log4cats.{LoggerFactory, SelfAwareStructuredLogger}
 
+/**
+ * Scheduler layer responsible to managing automated tasks
+ * @param config Config with information needed by the scheduler
+ * @param service Service layer to be used by scheduled events
+ * @tparam F
+ */
 private[core] class Scheduler[F[_]: LoggerFactory: Temporal](config: Config, service: Service[F]) {
   private val logger: SelfAwareStructuredLogger[F] = LoggerFactory[F].getLogger
   def start: F[Unit] = (for {

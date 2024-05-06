@@ -13,6 +13,11 @@ import io.github.broilogabriel.contributors.ContributorsRoutes
 import io.github.broilogabriel.github.GitHubRoutes
 import io.github.broilogabriel.projects.ProjectsRoutes
 
+/**
+ * Responsible for creating the http layer of the application defining common behaviour for all routes and injecting dependencies
+ * @param service Service layer to be used by routes
+ * @tparam F
+ */
 final class Routes[F[_]: LoggerFactory: ApplicativeThrow: Concurrent] private[core] (service: Service[F]) {
   private val logger: SelfAwareStructuredLogger[F]      = LoggerFactory[F].getLogger
   private val gitHubRoutes: GitHubRoutes[F]             = GitHubRoutes[F](service.gitHubService)
