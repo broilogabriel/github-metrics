@@ -1,18 +1,5 @@
-// Request URL: https://sure-champion-gopher.ngrok-free.app/github
-// Request method: POST
-// Accept: */*
-// Content-Type: application/json
-// User-Agent: GitHub-Hookshot/612f7cb
-// X-GitHub-Delivery: d900b8b0-ff4a-11ee-954e-1b2b9f2c50a0
-// X-GitHub-Event: pull_request
-// X-GitHub-Hook-ID: 472322823
-// X-GitHub-Hook-Installation-Target-ID: 785430811
-// X-GitHub-Hook-Installation-Target-Type: repository
-// X-Hub-Signature: sha1=d38a52999751ba776054af34ab66fa8fccfa0af4
-// X-Hub-Signature-256: sha256=7800ba2767a5033ea91c3346252326737cd723bb133b3aa0404ed4ccc9219fa0
-
 {
-  "action": "synchronize",
+  "action": "opened",
   "number": 1,
   "pull_request": {
     "url": "https://api.github.com/repos/broilogabriel/github-metrics/pulls/1",
@@ -48,10 +35,10 @@
     },
     "body": null,
     "created_at": "2024-04-20T12:39:15Z",
-    "updated_at": "2024-04-20T19:19:02Z",
+    "updated_at": "2024-04-20T12:39:15Z",
     "closed_at": null,
     "merged_at": null,
-    "merge_commit_sha": "bc1a9c7d04a19cc14d8b255babecc18cf1d0d566",
+    "merge_commit_sha": "0cda682115b9cef4aecefdd3a66e925c721e48d7",
     "assignee": null,
     "assignees": [
 
@@ -71,11 +58,11 @@
     "review_comments_url": "https://api.github.com/repos/broilogabriel/github-metrics/pulls/1/comments",
     "review_comment_url": "https://api.github.com/repos/broilogabriel/github-metrics/pulls/comments{/number}",
     "comments_url": "https://api.github.com/repos/broilogabriel/github-metrics/issues/1/comments",
-    "statuses_url": "https://api.github.com/repos/broilogabriel/github-metrics/statuses/8decbcb1031c3276852f21dd894d6aa708175f4c",
+    "statuses_url": "https://api.github.com/repos/broilogabriel/github-metrics/statuses/2a6e18952407f0c455bdc53d051b7d6194627382",
     "head": {
       "label": "broilogabriel:gabriel/setup",
       "ref": "gabriel/setup",
-      "sha": "8decbcb1031c3276852f21dd894d6aa708175f4c",
+      "sha": "2a6e18952407f0c455bdc53d051b7d6194627382",
       "user": {
         "login": "broilogabriel",
         "id": 5182223,
@@ -164,13 +151,13 @@
         "deployments_url": "https://api.github.com/repos/broilogabriel/github-metrics/deployments",
         "created_at": "2024-04-11T21:37:54Z",
         "updated_at": "2024-04-11T21:38:00Z",
-        "pushed_at": "2024-04-20T19:19:01Z",
+        "pushed_at": "2024-04-20T12:39:15Z",
         "git_url": "git://github.com/broilogabriel/github-metrics.git",
         "ssh_url": "git@github.com:broilogabriel/github-metrics.git",
         "clone_url": "https://github.com/broilogabriel/github-metrics.git",
         "svn_url": "https://github.com/broilogabriel/github-metrics",
         "homepage": null,
-        "size": 13,
+        "size": 4,
         "stargazers_count": 0,
         "watchers_count": 0,
         "language": "Scala",
@@ -302,13 +289,13 @@
         "deployments_url": "https://api.github.com/repos/broilogabriel/github-metrics/deployments",
         "created_at": "2024-04-11T21:37:54Z",
         "updated_at": "2024-04-11T21:38:00Z",
-        "pushed_at": "2024-04-20T19:19:01Z",
+        "pushed_at": "2024-04-20T12:39:15Z",
         "git_url": "git://github.com/broilogabriel/github-metrics.git",
         "ssh_url": "git@github.com:broilogabriel/github-metrics.git",
         "clone_url": "https://github.com/broilogabriel/github-metrics.git",
         "svn_url": "https://github.com/broilogabriel/github-metrics",
         "homepage": null,
-        "size": 13,
+        "size": 4,
         "stargazers_count": 0,
         "watchers_count": 0,
         "language": "Scala",
@@ -371,27 +358,25 @@
         "href": "https://api.github.com/repos/broilogabriel/github-metrics/pulls/1/commits"
       },
       "statuses": {
-        "href": "https://api.github.com/repos/broilogabriel/github-metrics/statuses/8decbcb1031c3276852f21dd894d6aa708175f4c"
+        "href": "https://api.github.com/repos/broilogabriel/github-metrics/statuses/2a6e18952407f0c455bdc53d051b7d6194627382"
       }
     },
     "author_association": "OWNER",
     "auto_merge": null,
     "active_lock_reason": null,
     "merged": false,
-    "mergeable": null,
-    "rebaseable": null,
-    "mergeable_state": "unknown",
+    "mergeable": true,
+    "rebaseable": true,
+    "mergeable_state": "clean",
     "merged_by": null,
     "comments": 0,
     "review_comments": 0,
     "maintainer_can_modify": false,
-    "commits": 2,
-    "additions": 1381,
-    "deletions": 26,
-    "changed_files": 29
+    "commits": 1,
+    "additions": 265,
+    "deletions": 25,
+    "changed_files": 16
   },
-  "before": "cc0d0ffca3f1f83ebe4916db4c89b7ced41dcd15",
-  "after": "8decbcb1031c3276852f21dd894d6aa708175f4c",
   "repository": {
     "id": 785430811,
     "node_id": "R_kgDOLtC5Gw",
@@ -460,13 +445,13 @@
     "deployments_url": "https://api.github.com/repos/broilogabriel/github-metrics/deployments",
     "created_at": "2024-04-11T21:37:54Z",
     "updated_at": "2024-04-11T21:38:00Z",
-    "pushed_at": "2024-04-20T19:19:01Z",
+    "pushed_at": "2024-04-20T12:39:15Z",
     "git_url": "git://github.com/broilogabriel/github-metrics.git",
     "ssh_url": "git@github.com:broilogabriel/github-metrics.git",
     "clone_url": "https://github.com/broilogabriel/github-metrics.git",
     "svn_url": "https://github.com/broilogabriel/github-metrics",
     "homepage": null,
-    "size": 13,
+    "size": 4,
     "stargazers_count": 0,
     "watchers_count": 0,
     "language": "Scala",
